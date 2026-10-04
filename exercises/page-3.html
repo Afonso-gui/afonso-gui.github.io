@@ -2,20 +2,46 @@
 <html lang="en">
 
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+
+        body {
+        @apply font-serif;
+        }  
+        header h1 {
+            @apply font-serif font-bold text-7xl; pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
+        }
+        header h2 {
+            @apply italic text-4xl;
+        }
+        section {   
+            @apply pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
+        }
+        section h2 {   
+            @apply mt-8 font-bold tracking-tight text-3xl;
+        }
+
+        section h3 {   
+            @apply mt-6;
+        }
+
+        section p {   
+            @apply mb-4 text-lg;
+        }
+
+    </style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Page with Sections</title>
     <meta name="description" content="A sample web page with multiple sections and headings.">
-
 </head>
 
 <body>
-
     <header>
         <h1>Big heading</h1>
         <h2>Smaller sub-heading</h2>
     </header>
-
     <main>
         <section>
             <h3>Section Heading</h3>
@@ -36,7 +62,7 @@
                 pariatur dicta architecto reiciendis error corrupti unde ratione assumenda culpa voluptatibus. Explicabo
                 vero atque accusantium eveniet natus.</p>
         </section>
-        
+
         <section>
             <h5>Section Heading</h5>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
@@ -46,7 +72,7 @@
                 pariatur dicta architecto reiciendis error corrupti unde ratione assumenda culpa voluptatibus. Explicabo
                 vero atque accusantium eveniet natus.</p>
         </section>
-        
+
         <section>
             <h6>Section Heading</h6>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
@@ -56,7 +82,7 @@
                 pariatur dicta architecto reiciendis error corrupti unde ratione assumenda culpa voluptatibus. Explicabo
                 vero atque accusantium eveniet natus.</p>
         </section>
-        
+
         <section>
             <h7>Section Heading</h7>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint

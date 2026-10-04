@@ -2,6 +2,28 @@
 <html lang="en">
 
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        header h1 {
+        @apply font-serif text-center tracking-tighter text-8xl; pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
+        }
+
+        section {   
+        @apply pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
+        }
+        section h2 {   
+        @apply mt-8 font-serif tracking-tight text-4xl;
+        }
+
+        section h3 {   
+        @apply mt-6 font-serif text-3xl;
+        }
+
+        section p {   
+        @apply mb-4 font-serif text-lg;
+        }
+    </style>
+
     <meta charset="UTF-8">
     <meta name="Description"
         content="A basic web page containing some text from A Tale of Two Cities, a novel published in 1859 by English author Charles Dickens.!">
@@ -12,7 +34,6 @@
     <header>
         <h1>A Tale of Two Cities</h1>
     </header>
-
     <main>
         <section>
             <p>It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of
