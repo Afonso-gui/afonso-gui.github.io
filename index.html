@@ -2,42 +2,121 @@
 <html lang="en">
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-        header {
-        @apply pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
-        }
-
-        section {   
-        @apply pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
-        }
-        section h2 {   
-        @apply mt-8;
-        }
-
-        section h3 {   
-        @apply mt-6;
-        }
-
-        section p {   
-        @apply mb-4;
-        }
-    </style>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Guilherme | My Website</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style type="text/tailwindcss">
+
+        header {
+            @apply flex flex-col justify-around items-center
+                w-full mx-auto bg-blue-950
+                px-12 lg:px-60 py-8 lg:py-14;
+        }
+
+        header h1 {
+            @apply text-5xl md:text-7xl text-white
+                tracking-tight text-center mb-6;
+        }
+
+        header h2 {
+            @apply text-2xl md:text-3xl
+                text-purple-300 text-center mb-8;
+        }
+
+        header img {
+            @apply w-full max-w-[20rem] mx-auto mb-8;
+        }
+
+        section {
+            @apply w-full bg-purple-100
+                px-12 lg:px-60
+                pt-8 pb-12 lg:pt-12 lg:pb-18;
+        }
+
+        section h2 {
+            @apply text-3xl md:text-4xl
+                text-blue-950 text-center
+                tracking-tight mb-8;
+        }
+
+        section p {
+            @apply text-lg md:text-xl
+                text-blue-950 text-center mb-5;
+        }
+
+        section a {
+            @apply text-purple-700 font-bold;
+        }
+
+        section > * {
+            @apply w-full max-w-[48rem] mx-auto;
+        }
+
+        footer {
+            @apply w-full bg-blue-950
+                px-12 py-8;
+        }
+
+        footer p {
+            @apply text-white text-center;
+        }
+
+        header *:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        section *:last-child {
+            margin-bottom: 0 !important;
+        }
+
     </style>
 </head>
 
 <body>
-    <h1> Joe Blogs</h1>
-    <h2> Welcome to my website </h2>
-    <p> I created the website to showcase of my recent some of my web design work </p>
-    <p><a href="exercises/page-1.html"> A Tale of Two Cities</a></p>
-    <p><a href="exercises/page-2.html"> Purple Rain</a></p>
-    <p><a href="exercises/page-3.html"> Example Page With Semantic HTML Structure</a></p>
-    <p><a href="exercises/soccer.html"> Three Top Soccer Players</a></p>
+
+    <header>
+        <h1>Hi, I'm Guilherme</h1>
+        <h2>Web / UI Designer</h2>
+        <img src="./assets/img/developer.jpg" alt="Guilherme: Web Designer">
+    </header>
+    <section>
+        <h2>Welcome to My Website</h2>
+
+        <p>
+            I created this website to showcase
+            some of my recent web design work.
+        </p>
+
+        <h2>My Web Design Projects</h2>
+
+        <p><a href="exercises/page-1.html">A Tale of Two Cities
+            </a></p>
+
+        <p><a href="exercises/page-2.html"> Purple Rain
+            </a></p>
+
+        <p><a href="exercises/page-3.html"> Example Page With Semantic HTML Structure
+            </a></p>
+
+        <p><a href="exercises/page-4.html"> Vincent van Gogh
+            </a></p>
+
+        <p><a href="exercises/page-5.html"> Irish Tourism
+            </a></p>
+
+        <p><a href="exercises/soccer.html"> Three Top Soccer Players
+            </a></p>
+
+    </section>
+
+    <footer>
+        <p>Guilherme - Web Design Projects 2026
+            </p>
+    </footer>
+
 </body>
 
 </html>
