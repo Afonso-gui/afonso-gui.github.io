@@ -1,0 +1,137 @@
+
+/* ============ CSS RESET ============ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+}
+
+img,
+picture,
+video {
+    display: block;
+    max-width: 100%;
+}
+
+
+/* ============ VARIABLES ============ */
+
+:root {
+    /* Font Families */
+    --serif-font: Cambria, "Hoefler Text", "Noto Serif",
+        "Droid Serif", Georgia, serif;
+
+    --sans-font: "Segoe UI", -apple-system, Roboto,
+        Arial, sans-serif;
+
+    /* Font Sizes */
+    --fs-xxxl: clamp(2.90rem, 3.36vw + 2.06rem, 4.75rem);
+    --fs-xxl: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
+    --fs-xl: clamp(1.76rem, 1.40vw + 1.40rem, 2.53rem);
+    --fs-base: clamp(1.15rem, 0.39vw + 1.05rem, 1.48rem);
+}
+
+
+/* ============ GENERAL STYLES ============ */
+
+body {
+    font-family: var(--sans-font);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    letter-spacing: -1px;
+}
+
+
+/* ============ TYPOGRAPHY ============ */
+
+body {
+    background-color: antiquewhite;
+}
+
+h1 {
+    font-size: var(--fs-xxxl);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    letter-spacing: -3px;
+    color: brown;
+}
+
+h2 {
+    font-size: var(--fs-xl);
+    margin-bottom: 0.5rem;
+    color: brown;
+}
+
+h3 {
+    color: brown;
+}
+
+p {
+    font-family: var(--serif-font);
+    font-size: var(--fs-base);
+    margin-bottom: 1rem;
+    line-height: 1.45;
+}
+
+
+/* ============ HEADER ============ */
+
+header {
+    text-align: center;
+    padding: 5%;
+}
+
+header h2 {
+    font-size: var(--fs-xxl);
+    font-weight: normal;
+    font-style: italic;
+}
+
+
+/* ============ SECTIONS ============ */
+
+section {
+    padding: 5%;
+}
+
+
+/* ============ RESPONSIVE LAYOUT ============ */
+
+@media (min-width: 768px) {
+
+    header {
+        padding: 3% 12%;
+    }
+
+    section {
+        padding: 2% 22%;
+    }
+
+}
+
+
+/* ============ LINKS ============ */
+
+a {
+    color: brown;
+}

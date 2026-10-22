@@ -2,39 +2,56 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A sample web page with multiple sections and headings.">
+
+    <title>Web Page with Sections</title>
+
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
 
         body {
-        @apply font-serif;
-        }  
+        @apply font-serif text-blue-200;
+        }
+
+        header {
+        @apply pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
+        }
+
         header h1 {
-            @apply font-serif font-bold text-7xl; pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
+            @apply text-6xl md:text-9xl mb-10 font-bold text-blue-800;
         }
+
         header h2 {
-            @apply italic text-4xl;
+            @apply text-3xl md:text-5xl italic text-blue-800;
         }
+
         section {   
             @apply pt-8 px-[9%] pb-[42px] md:py-[3%] md:px-[20%];
         }
+
         section h2 {   
-            @apply mt-8 font-bold tracking-tight text-3xl;
+            @apply mt-8 mb-2 text-2xl md:text-4xl font-bold tracking-tight text-blue-800;
         }
 
         section h3 {   
-            @apply mt-6;
+            @apply mt-8 mb-2 text-xl md:text-4xl font-bold tracking-tight;
         }
 
         section p {   
-            @apply mb-4 text-lg;
+            @apply mb-4 text-lg md:text-2xl leading-10 text-blue-800;
         }
+        /* SECTION BACKGROUND COLOR */
+        .section-1 { @apply bg-yellow-200;}
+        .section-2 { @apply bg-green-200;}
+        .section-3 { @apply bg-orange-200;}
+        .section-4 { @apply bg-sky-200;}
+        .section-5 { @apply bg-rose-200;}
+        .section-6 { @apply bg-purple-200;}
 
     </style>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Page with Sections</title>
-    <meta name="description" content="A sample web page with multiple sections and headings.">
 </head>
 
 <body>
@@ -43,8 +60,9 @@
         <h2>Smaller sub-heading</h2>
     </header>
     <main>
-        <section>
-            <h3>Section Heading</h3>
+
+        <section class="section-1">
+            <h2>Section Heading</h2>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
                 eveniet nobis nulla obcaecati quibusdam quae, quia aliquam mollitia ea vel ullam dolores natus in
                 quisquam?</p>
@@ -53,8 +71,8 @@
                 vero atque accusantium eveniet natus.</p>
         </section>
 
-        <section>
-            <h4>Section Heading</h4>
+        <section class="section-2">
+            <h2>Section Heading</h2>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
                 eveniet nobis nulla obcaecati quibusdam quae, quia aliquam mollitia ea vel ullam dolores natus in
                 quisquam?</p>
@@ -63,8 +81,8 @@
                 vero atque accusantium eveniet natus.</p>
         </section>
 
-        <section>
-            <h5>Section Heading</h5>
+        <section class="section-3">
+            <h2>Section Heading</h2>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
                 eveniet nobis nulla obcaecati quibusdam quae, quia aliquam mollitia ea vel ullam dolores natus in
                 quisquam?</p>
@@ -73,8 +91,8 @@
                 vero atque accusantium eveniet natus.</p>
         </section>
 
-        <section>
-            <h6>Section Heading</h6>
+        <section class="section-4">
+            <h2>Section Heading</h2>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
                 eveniet nobis nulla obcaecati quibusdam quae, quia aliquam mollitia ea vel ullam dolores natus in
                 quisquam?</p>
@@ -83,8 +101,8 @@
                 vero atque accusantium eveniet natus.</p>
         </section>
 
-        <section>
-            <h7>Section Heading</h7>
+        <section class="section-5">
+            <h2>Section Heading</h2>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
                 eveniet nobis nulla obcaecati quibusdam quae, quia aliquam mollitia ea vel ullam dolores natus in
                 quisquam?</p>
@@ -93,8 +111,8 @@
                 vero atque accusantium eveniet natus.</p>
         </section>
 
-        <section>
-            <h8>Section Heading</h8>
+        <section class="section-6">
+            <h2>Section Heading</h2>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima exercitationem, fuga doloribus sequi sint
                 eveniet nobis nulla obcaecati quibusdam quae, quia aliquam mollitia ea vel ullam dolores natus in
                 quisquam?</p>
@@ -102,9 +120,11 @@
                 pariatur dicta architecto reiciendis error corrupti unde ratione assumenda culpa voluptatibus. Explicabo
                 vero atque accusantium eveniet natus.</p>
 
-            <p><a href="../index.html">Back to Home page</a></p>
-
+            <p>
+                <a href="../index.html">Back to Home page</a>
+            </p>
         </section>
+
     </main>
 
 </body>
