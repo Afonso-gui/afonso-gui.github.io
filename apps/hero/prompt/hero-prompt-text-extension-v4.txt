@@ -1,0 +1,960 @@
+INSTRUCTIONS:
+
+Let's extend our existing Hero Block Generator.
+
+Use the current code supplied below as your starting point.
+
+Preserve all existing working features. Extend the existing settings object and named functions where appropriate.
+
+Include any new hero styling in the shared hero stylesheet so it is also included in the exported page.
+
+Add only the requested feature. Avoid unrelated redesigns or refactoring.
+
+NEW FEATURE:
+Add a “Gradient background” checkbox, unchecked by default.
+
+When unchecked, retain solid backgrounds and the Background colour target.
+
+When checked, replace Background with Start colour and End colour targets using the existing palette. Show a Direction dropdown with four choices: Left to right (to right, default), Right to left (to left), Top to bottom (to bottom), and Bottom to top (to top).
+
+On first enabling the gradient, use the current solid colour as its start colour and blue-500 as its end colour. Preserve both gradient colours and direction when switching it off and back on.
+
+Keep H1/H2 colour selection working. Ensure the active palette target is always visible and enabled. If switching modes hides the active target, select Start colour in gradient mode or Background in solid mode. Use the same fallback when hiding an active H2 target.
+
+Apply CSS linear-gradient() using Tailwind colour variables in the shared colour stylesheet in the head. Include it in exported HTML and do not use inline styles.
+
+Switching back to solid mode must set background-image to none and restore the saved solid colour.
+
+The Dark appearance preset should reset the saved solid background and heading colours, while preserving gradient colours, direction and whether gradient mode is enabled.
+
+Update immediately and preserve all existing features.
+
+Return the complete updated HTML in one code block.
+
+
+CURRENT CODE:
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Short, unique description of web page. Often used as the snippet shown in search results. About 120 characters is ideal.">
+
+    <title>Hero Block Generator</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Shared styles for the preview and exported page. -->
+    <style id="hero-styles" type="text/tailwindcss">
+        .hero {
+            @apply flex items-center w-full px-6 py-16 md:px-12 md:py-24;
+        }
+
+        .hero-content {
+            @apply w-full max-w-6xl mx-auto;
+            min-width: 0;
+        }
+
+        .hero h1 {
+            @apply max-w-4xl text-4xl md:text-7xl font-bold leading-tight tracking-tight;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .hero h2 {
+            @apply max-w-3xl mt-6 text-xl md:text-3xl font-normal leading-relaxed;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .hero-light {
+            @apply bg-slate-50;
+        }
+
+        .hero-light h1 {
+            @apply text-slate-900;
+        }
+
+        .hero-light h2 {
+            @apply text-slate-700;
+        }
+
+        .hero-dark {
+            @apply bg-slate-900;
+        }
+
+        .hero-dark h1 {
+            @apply text-slate-50;
+        }
+
+        .hero-dark h2 {
+            @apply text-slate-300;
+        }
+
+        .hero-centre {
+            @apply text-center;
+        }
+
+        .hero-centre h1,
+        .hero-centre h2 {
+            @apply mx-auto;
+        }
+
+        .hero-min-height {
+            @apply min-h-[480px] md:min-h-[85vh];
+        }
+
+        .hero-h1-serif h1 {
+            @apply font-serif;
+        }
+
+        .hero-h2-serif h2 {
+            @apply font-serif;
+        }
+
+        .hero [hidden] {
+            display: none !important;
+        }
+    </style>
+
+    <!-- Dynamic Tailwind color override rules and letter spacing rules -->
+    <style id="dynamic-hero-styles" type="text/tailwindcss">
+        #hero-preview {
+            background-color: var(--color-slate-50);
+        }
+        #hero-heading {
+            color: var(--color-slate-900);
+            letter-spacing: -0.05em;
+        }
+        #hero-subheading {
+            color: var(--color-slate-700);
+            letter-spacing: -0.025em;
+        }
+    </style>
+
+    <!-- Editor styles are excluded from the exported page. -->
+    <style type="text/tailwindcss">
+        .app-body {
+            @apply m-0 bg-white text-slate-900 font-sans;
+        }
+
+        .app-main {
+            @apply max-w-7xl mx-auto px-4 pt-8 pb-32 md:px-8;
+        }
+
+        .app-intro {
+            @apply mb-5;
+        }
+
+        .app-title {
+            @apply text-2xl font-bold tracking-tight;
+        }
+
+        .app-description {
+            @apply mt-2 text-sm text-slate-600;
+        }
+
+        .control-panel {
+            @apply flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4;
+        }
+
+        .control-row {
+            @apply flex flex-wrap items-center gap-x-6 gap-y-4;
+        }
+
+        .control-label {
+            @apply inline-flex items-center gap-2 text-sm font-medium cursor-pointer;
+        }
+
+        .control-checkbox {
+            @apply w-5 h-5 shrink-0 cursor-pointer;
+            accent-color: #2563eb;
+        }
+
+        .target-btn {
+            @apply px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 transition-all cursor-pointer;
+        }
+
+        .target-btn:hover:not(:disabled) {
+            @apply bg-slate-100 border-slate-400;
+        }
+
+        .target-btn.active {
+            @apply bg-blue-600 text-white border-blue-600 shadow-sm;
+        }
+
+        .target-btn:disabled {
+            @apply opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200;
+        }
+
+        .palette-scroll-container {
+            @apply w-full overflow-x-auto pb-2 border border-slate-200 rounded-lg p-3 bg-slate-50/50;
+        }
+
+        .palette-table {
+            @apply border-collapse min-w-max text-xs;
+        }
+
+        .swatch-btn {
+            @apply w-6 h-6 rounded border border-black/10 transition-transform cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1;
+        }
+
+        .swatch-btn:hover {
+            @apply scale-110 z-10 relative;
+        }
+
+        .swatch-btn.selected-swatch {
+            @apply ring-2 ring-blue-600 ring-offset-2 scale-110 z-10 relative;
+        }
+
+        .control-checkbox:focus-visible,
+        .copy-button:focus-visible,
+        .manual-code:focus-visible,
+        .target-btn:focus-visible,
+        input[type="range"]:focus-visible {
+            outline: 3px solid #2563eb;
+            outline-offset: 4px;
+        }
+
+        .edit-instruction {
+            @apply my-4 text-sm text-slate-600;
+        }
+
+        .preview-frame {
+            @apply rounded-2xl border border-slate-200;
+        }
+
+        .preview-frame .hero {
+            @apply rounded-2xl;
+        }
+
+        .hero [contenteditable] {
+            cursor: text;
+        }
+
+        .hero [contenteditable]:focus {
+            outline: 3px solid #2563eb;
+            outline-offset: 5px;
+            border-radius: 2px;
+        }
+
+        .hero-dark [contenteditable]:focus {
+            outline-color: #93c5fd;
+        }
+
+        .copy-button {
+            @apply fixed right-4 bottom-4 rounded-xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-800 md:right-6 md:bottom-6;
+        }
+
+        .status-message {
+            @apply mt-4 text-sm text-slate-700;
+        }
+
+        .manual-copy {
+            @apply mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4;
+        }
+
+        .manual-label {
+            @apply block text-sm font-semibold;
+        }
+
+        .manual-help {
+            @apply mt-2 mb-3 text-sm text-slate-600;
+        }
+
+        .manual-code {
+            @apply block w-full min-h-72 resize-y rounded-lg border border-slate-300 bg-white p-3 font-mono text-sm text-slate-900;
+        }
+
+        .manual-copy[hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="app-body">
+    <main class="app-main">
+        <div class="app-intro">
+            <h2 class="app-title">Hero Block Generator</h2>
+
+            <p class="app-description">
+                Edit the headings, choose your settings, then copy the HTML.
+            </p>
+        </div>
+
+        <section class="control-panel" aria-label="Hero settings">
+            <!-- Global Appearance & Layout Settings -->
+            <div class="control-row border-b border-slate-200 pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 w-full md:w-auto">General</span>
+                <label class="control-label" for="dark-appearance">
+                    <input class="control-checkbox" id="dark-appearance" type="checkbox">
+                    Dark appearance preset
+                </label>
+
+                <label class="control-label" for="centre-text">
+                    <input class="control-checkbox" id="centre-text" type="checkbox">
+                    Centre text
+                </label>
+
+                <label class="control-label" for="minimum-height">
+                    <input class="control-checkbox" id="minimum-height" type="checkbox" checked>
+                    Minimum height
+                </label>
+
+                <label class="control-label" for="show-subheading">
+                    <input class="control-checkbox" id="show-subheading" type="checkbox" checked>
+                    Show subheading
+                </label>
+            </div>
+
+            <!-- H1 Text Effect Group -->
+            <div class="control-row border-b border-slate-200 pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 w-full md:w-auto">H1
+                    Effects</span>
+                <label class="control-label" for="h1-serif">
+                    <input class="control-checkbox" id="h1-serif" type="checkbox">
+                    Serif font
+                </label>
+                <div class="flex items-center gap-3">
+                    <label class="control-label text-sm font-medium" for="h1-letter-spacing">
+                        Letter spacing:
+                    </label>
+                    <input id="h1-letter-spacing" type="range" min="-0.05" max="0.10" step="0.005" value="-0.05"
+                        class="cursor-pointer accent-blue-600">
+                    <span id="h1-letter-spacing-val"
+                        class="text-xs font-mono font-semibold text-slate-700 min-w-[5ch]">-0.05em</span>
+                </div>
+            </div>
+
+            <!-- H2 Text Effect Group -->
+            <div id="h2-controls-group" class="control-row border-b border-slate-200 pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 w-full md:w-auto">H2
+                    Effects</span>
+                <label class="control-label" for="h2-serif">
+                    <input class="control-checkbox" id="h2-serif" type="checkbox">
+                    Serif font
+                </label>
+                <div class="flex items-center gap-3">
+                    <label class="control-label text-sm font-medium" for="h2-letter-spacing">
+                        Letter spacing:
+                    </label>
+                    <input id="h2-letter-spacing" type="range" min="-0.05" max="0.10" step="0.005" value="-0.025"
+                        class="cursor-pointer accent-blue-600">
+                    <span id="h2-letter-spacing-val"
+                        class="text-xs font-mono font-semibold text-slate-700 min-w-[5ch]">-0.025em</span>
+                </div>
+            </div>
+
+            <!-- Colour Palette Section -->
+            <div class="flex flex-col gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Colour Target:</span>
+                        <div class="flex items-center gap-1.5" role="tablist"
+                            aria-label="Colour target element selection">
+                            <button type="button" id="target-bg" class="target-btn active" role="tab"
+                                aria-selected="true">
+                                Background (<span id="target-bg-val" class="font-mono">slate-50</span>)
+                            </button>
+                            <button type="button" id="target-h1" class="target-btn" role="tab" aria-selected="false">
+                                H1 (<span id="target-h1-val" class="font-mono">slate-900</span>)
+                            </button>
+                            <button type="button" id="target-h2" class="target-btn" role="tab" aria-selected="false">
+                                H2 (<span id="target-h2-val" class="font-mono">slate-700</span>)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Palette Grid Container (Horizontally Scrollable on small screens) -->
+                <div class="palette-scroll-container">
+                    <table class="palette-table" aria-label="Tailwind CSS Colour Palette">
+                        <thead>
+                            <tr class="text-left text-slate-400 font-mono text-[10px]">
+                                <th class="pr-3 pb-1 font-semibold">Family</th>
+                                <th class="px-1 pb-1 text-center font-semibold">50</th>
+                                <th class="px-1 pb-1 text-center font-semibold">100</th>
+                                <th class="px-1 pb-1 text-center font-semibold">200</th>
+                                <th class="px-1 pb-1 text-center font-semibold">300</th>
+                                <th class="px-1 pb-1 text-center font-semibold">400</th>
+                                <th class="px-1 pb-1 text-center font-semibold">500</th>
+                                <th class="px-1 pb-1 text-center font-semibold">600</th>
+                                <th class="px-1 pb-1 text-center font-semibold">700</th>
+                                <th class="px-1 pb-1 text-center font-semibold">800</th>
+                                <th class="px-1 pb-1 text-center font-semibold">900</th>
+                                <th class="px-1 pb-1 text-center font-semibold">950</th>
+                            </tr>
+                        </thead>
+                        <tbody id="palette-tbody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <p id="edit-instruction" class="edit-instruction">
+            Click a heading to edit the text.
+        </p>
+
+        <div class="preview-frame">
+            <header id="hero-preview" class="hero hero-light hero-min-height">
+                <div class="hero-content">
+                    <h1 id="hero-heading" contenteditable="plaintext-only" tabindex="0" aria-label="Main hero heading"
+                        aria-describedby="edit-instruction" spellcheck="true">Lorem ipsum dolor sit amet</h1>
+
+                    <h2 id="hero-subheading" contenteditable="plaintext-only" tabindex="0" aria-label="Hero subheading"
+                        aria-describedby="edit-instruction" spellcheck="true">Consectetur adipiscing elit. Integer vitae
+                        libero ac risus egestas placerat.</h2>
+                </div>
+            </header>
+        </div>
+
+        <p id="copy-status" class="status-message" role="status" aria-live="polite" aria-atomic="true"></p>
+
+        <section id="manual-copy" class="manual-copy" aria-label="Manual HTML copying" hidden>
+            <label class="manual-label" for="manual-code">
+                Generated HTML — copy manually
+            </label>
+
+            <p id="manual-help" class="manual-help">
+                Automatic copying is unavailable. Select the code below and
+                press Ctrl+C on Windows or Command+C on Mac. This code updates
+                whenever you edit the hero.
+            </p>
+
+            <textarea id="manual-code" class="manual-code" aria-describedby="manual-help" readonly
+                spellcheck="false"></textarea>
+        </section>
+
+        <button id="copy-html" class="copy-button" type="button">
+            Copy HTML
+        </button>
+    </main>
+
+    <script>
+        // Find the page elements.
+        const heroPreview = document.getElementById("hero-preview");
+        const heroHeading = document.getElementById("hero-heading");
+        const heroSubheading = document.getElementById("hero-subheading");
+        const heroStyles = document.getElementById("hero-styles");
+        const dynamicHeroStyles = document.getElementById("dynamic-hero-styles");
+
+        const darkCheckbox = document.getElementById("dark-appearance");
+        const centreCheckbox = document.getElementById("centre-text");
+        const heightCheckbox = document.getElementById("minimum-height");
+        const subheadingCheckbox = document.getElementById("show-subheading");
+
+        const h1SerifCheckbox = document.getElementById("h1-serif");
+        const h1SpacingRange = document.getElementById("h1-letter-spacing");
+        const h1SpacingVal = document.getElementById("h1-letter-spacing-val");
+
+        const h2SerifCheckbox = document.getElementById("h2-serif");
+        const h2SpacingRange = document.getElementById("h2-letter-spacing");
+        const h2SpacingVal = document.getElementById("h2-letter-spacing-val");
+        const h2ControlsGroup = document.getElementById("h2-controls-group");
+
+        const targetBgBtn = document.getElementById("target-bg");
+        const targetH1Btn = document.getElementById("target-h1");
+        const targetH2Btn = document.getElementById("target-h2");
+        const targetBgVal = document.getElementById("target-bg-val");
+        const targetH1Val = document.getElementById("target-h1-val");
+        const targetH2Val = document.getElementById("target-h2-val");
+
+        const paletteTbody = document.getElementById("palette-tbody");
+
+        const copyButton = document.getElementById("copy-html");
+        const copyStatus = document.getElementById("copy-status");
+        const manualCopy = document.getElementById("manual-copy");
+        const manualCode = document.getElementById("manual-code");
+
+        // Tailwind palette color definitions
+        const colorShades = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"];
+        const colorFamilies = [
+            "slate", "gray", "zinc", "neutral", "stone",
+            "red", "orange", "amber", "yellow", "lime",
+            "green", "emerald", "teal", "cyan", "sky",
+            "blue", "indigo", "violet", "purple", "fuchsia",
+            "pink", "rose"
+        ];
+
+        // Store settings including active target and selected colours.
+        const settings = {
+            darkAppearance: false,
+            centreText: false,
+            minimumHeight: true,
+            showSubheading: true,
+            h1Serif: false,
+            h1LetterSpacing: -0.05,
+            h2Serif: false,
+            h2LetterSpacing: -0.025,
+            activeTarget: "bg", // "bg", "h1", or "h2"
+            bgColor: "slate-50",
+            h1Color: "slate-900",
+            h2Color: "slate-700"
+        };
+
+        function readSettings() {
+            settings.darkAppearance = darkCheckbox.checked;
+            settings.centreText = centreCheckbox.checked;
+            settings.minimumHeight = heightCheckbox.checked;
+            settings.showSubheading = subheadingCheckbox.checked;
+            settings.h1Serif = h1SerifCheckbox.checked;
+            settings.h1LetterSpacing = parseFloat(h1SpacingRange.value);
+            settings.h2Serif = h2SerifCheckbox.checked;
+            settings.h2LetterSpacing = parseFloat(h2SpacingRange.value);
+        }
+
+        // Build the colour palette table rows
+        function buildPaletteUI() {
+            paletteTbody.innerHTML = "";
+
+            // Special Row for Black & White
+            const specialTr = document.createElement("tr");
+            specialTr.className = "border-b border-slate-200/80";
+
+            const specialLabelTd = document.createElement("td");
+            specialLabelTd.className = "pr-3 py-1 font-medium text-slate-600 text-xs capitalize";
+            specialLabelTd.textContent = "Monochrome";
+            specialTr.appendChild(specialLabelTd);
+
+            const whiteTd = document.createElement("td");
+            whiteTd.className = "p-1 text-center";
+            whiteTd.appendChild(createSwatchButton("white"));
+            specialTr.appendChild(whiteTd);
+
+            const blackTd = document.createElement("td");
+            blackTd.className = "p-1 text-center";
+            blackTd.appendChild(createSwatchButton("black"));
+            specialTr.appendChild(blackTd);
+
+            // Empty cells for remaining columns in monochrome row
+            for (let i = 2; i < 11; i++) {
+                const emptyTd = document.createElement("td");
+                emptyTd.className = "p-1";
+                specialTr.appendChild(emptyTd);
+            }
+            paletteTbody.appendChild(specialTr);
+
+            // Standard Tailwind Colour Family Rows
+            colorFamilies.forEach(function (family) {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-100/50 transition-colors";
+
+                const labelTd = document.createElement("td");
+                labelTd.className = "pr-3 py-1 font-medium text-slate-600 text-xs capitalize";
+                labelTd.textContent = family;
+                tr.appendChild(labelTd);
+
+                colorShades.forEach(function (shade) {
+                    const td = document.createElement("td");
+                    td.className = "p-1 text-center";
+
+                    const colorName = `${family}-${shade}`;
+                    const button = createSwatchButton(colorName);
+
+                    td.appendChild(button);
+                    tr.appendChild(td);
+                });
+
+                paletteTbody.appendChild(tr);
+            });
+        }
+
+        function createSwatchButton(colorName) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "swatch-btn";
+            button.dataset.color = colorName;
+            button.setAttribute("aria-label", `Select colour ${colorName}`);
+            button.title = colorName;
+
+            // Apply Tailwind variable style directly to swatch for accurate background representation
+            button.style.backgroundColor = `var(--color-${colorName})`;
+
+            button.addEventListener("click", function () {
+                selectColorForActiveTarget(colorName);
+            });
+
+            return button;
+        }
+
+        function selectColorForActiveTarget(colorName) {
+            if (settings.activeTarget === "bg") {
+                settings.bgColor = colorName;
+            } else if (settings.activeTarget === "h1") {
+                settings.h1Color = colorName;
+            } else if (settings.activeTarget === "h2") {
+                settings.h2Color = colorName;
+            }
+            updateHero();
+        }
+
+        function setActiveTarget(target) {
+            if (target === "h2" && !settings.showSubheading) {
+                target = "bg";
+            }
+            settings.activeTarget = target;
+
+            [targetBgBtn, targetH1Btn, targetH2Btn].forEach(function (btn) {
+                btn.classList.remove("active");
+                btn.setAttribute("aria-selected", "false");
+            });
+
+            if (target === "bg") {
+                targetBgBtn.classList.add("active");
+                targetBgBtn.setAttribute("aria-selected", "true");
+            } else if (target === "h1") {
+                targetH1Btn.classList.add("active");
+                targetH1Btn.setAttribute("aria-selected", "true");
+            } else if (target === "h2") {
+                targetH2Btn.classList.add("active");
+                targetH2Btn.setAttribute("aria-selected", "true");
+            }
+
+            updateSwatchHighlights();
+        }
+
+        function updateSwatchHighlights() {
+            let activeColor = settings.bgColor;
+            if (settings.activeTarget === "h1") activeColor = settings.h1Color;
+            if (settings.activeTarget === "h2") activeColor = settings.h2Color;
+
+            const swatches = paletteTbody.querySelectorAll(".swatch-btn");
+            swatches.forEach(function (swatch) {
+                if (swatch.dataset.color === activeColor) {
+                    swatch.classList.add("selected-swatch");
+                } else {
+                    swatch.classList.remove("selected-swatch");
+                }
+            });
+        }
+
+        // Use the same class choices for preview and export.
+        function getHeroClasses() {
+            const classes = ["hero"];
+
+            if (settings.darkAppearance) {
+                classes.push("hero-dark");
+            } else {
+                classes.push("hero-light");
+            }
+
+            if (settings.centreText) {
+                classes.push("hero-centre");
+            }
+
+            if (settings.minimumHeight) {
+                classes.push("hero-min-height");
+            }
+
+            if (settings.h1Serif) {
+                classes.push("hero-h1-serif");
+            }
+
+            if (settings.h2Serif) {
+                classes.push("hero-h2-serif");
+            }
+
+            return classes;
+        }
+
+        function updateHero() {
+            readSettings();
+
+            const activeClasses = getHeroClasses();
+
+            const optionalClasses = [
+                "hero-light",
+                "hero-dark",
+                "hero-centre",
+                "hero-min-height",
+                "hero-h1-serif",
+                "hero-h2-serif"
+            ];
+
+            optionalClasses.forEach(function (className) {
+                heroPreview.classList.toggle(
+                    className,
+                    activeClasses.includes(className)
+                );
+            });
+
+            // Update Target Button Labels
+            targetBgVal.textContent = settings.bgColor;
+            targetH1Val.textContent = settings.h1Color;
+            targetH2Val.textContent = settings.h2Color;
+
+            // Handle H2 state changes and target fallbacks
+            if (!settings.showSubheading) {
+                targetH2Btn.disabled = true;
+                if (settings.activeTarget === "h2") {
+                    setActiveTarget("bg");
+                }
+            } else {
+                targetH2Btn.disabled = false;
+            }
+
+            // Update dynamic colors and letter spacing styles in shared style element
+            dynamicHeroStyles.textContent = `
+                #hero-preview {
+                    background-color: var(--color-${settings.bgColor});
+                }
+                #hero-heading {
+                    color: var(--color-${settings.h1Color});
+                    letter-spacing: ${settings.h1LetterSpacing}em;
+                }
+                #hero-subheading {
+                    color: var(--color-${settings.h2Color});
+                    letter-spacing: ${settings.h2LetterSpacing}em;
+                }
+            `;
+
+            // Disable/enable H2 effect controls when subheading is hidden
+            h2SerifCheckbox.disabled = !settings.showSubheading;
+            h2SpacingRange.disabled = !settings.showSubheading;
+
+            if (!settings.showSubheading) {
+                h2ControlsGroup.classList.add("opacity-50", "cursor-not-allowed");
+            } else {
+                h2ControlsGroup.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+
+            // Preserve the H2 element and its text while hiding it.
+            heroSubheading.hidden = !settings.showSubheading;
+
+            updateSwatchHighlights();
+            clearStatus();
+            updateManualCode();
+        }
+
+        // Handle Dark Appearance preset toggle
+        function handleDarkAppearanceToggle() {
+            const isDark = darkCheckbox.checked;
+            if (isDark) {
+                settings.bgColor = "slate-900";
+                settings.h1Color = "slate-50";
+                settings.h2Color = "slate-300";
+            } else {
+                settings.bgColor = "slate-50";
+                settings.h1Color = "slate-900";
+                settings.h2Color = "slate-700";
+            }
+            updateHero();
+        }
+
+        // Keep special characters as text in the exported document.
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function generateHtml() {
+            readSettings();
+
+            const headingText = escapeHtml(heroHeading.textContent);
+            const subheadingText = escapeHtml(heroSubheading.textContent);
+            const classNames = getHeroClasses().join(" ");
+            const sharedCss = heroStyles.textContent.trim();
+            const dynamicCss = dynamicHeroStyles.textContent.trim();
+
+            let subheadingHtml = "";
+
+            if (settings.showSubheading) {
+                subheadingHtml = `
+            <h2 id="hero-subheading">${subheadingText}</h2>`;
+            }
+
+            // Escape the closing script tag inside this string.
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Short, unique description of web page. Often used as the snippet shown in search results. About 120 characters is ideal.">
+
+    <title>Hero Page</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>
+
+    <style type="text/tailwindcss">
+${sharedCss}
+    </style>
+    <style type="text/tailwindcss">
+${dynamicCss}
+    </style>
+</head>
+
+<body>
+    <header id="hero-preview" class="${classNames}">
+        <div class="hero-content">
+            <h1 id="hero-heading">${headingText}</h1>${subheadingHtml}
+        </div>
+    </header>
+</body>
+</html>`;
+        }
+
+        function clearStatus() {
+            copyStatus.textContent = "";
+        }
+
+        function updateManualCode() {
+            if (!manualCopy.hidden) {
+                manualCode.value = generateHtml();
+            }
+        }
+
+        function handleHeadingInput() {
+            clearStatus();
+            updateManualCode();
+        }
+
+        // Insert plain text without creating HTML elements.
+        function insertPlainText(heading, text) {
+            const selection = window.getSelection();
+
+            if (!selection || selection.rangeCount === 0) {
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+
+            if (
+                !heading.contains(range.startContainer) ||
+                !heading.contains(range.endContainer)
+            ) {
+                return;
+            }
+
+            range.deleteContents();
+
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+
+            range.setStartAfter(textNode);
+            range.collapse(true);
+
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            handleHeadingInput();
+        }
+
+        function handlePlainTextPaste(event) {
+            event.preventDefault();
+
+            if (!event.clipboardData) {
+                return;
+            }
+
+            const pastedText = event.clipboardData.getData("text/plain");
+
+            insertPlainText(event.currentTarget, pastedText);
+        }
+
+        // Prevent Enter from creating extra HTML elements.
+        function handleHeadingBeforeInput(event) {
+            if (
+                event.inputType === "insertParagraph" ||
+                event.inputType === "insertLineBreak"
+            ) {
+                event.preventDefault();
+                insertPlainText(event.currentTarget, "\n");
+            }
+        }
+
+        function preventFormattedDrop(event) {
+            event.preventDefault();
+        }
+
+        function showManualCopy(html) {
+            manualCopy.hidden = false;
+            manualCode.value = html;
+
+            copyStatus.textContent =
+                "Automatic copying is unavailable. Use the generated HTML below.";
+
+            manualCode.focus();
+            manualCode.select();
+        }
+
+        async function copyHtml() {
+            clearStatus();
+
+            const html = generateHtml();
+
+            try {
+                if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                    throw new Error("Clipboard API is unavailable.");
+                }
+
+                await navigator.clipboard.writeText(html);
+
+                copyStatus.textContent =
+                    "HTML copied—paste it into VS Code.";
+            } catch (error) {
+                showManualCopy(generateHtml());
+            }
+        }
+
+        // Initialize target button handlers
+        targetBgBtn.addEventListener("click", function () { setActiveTarget("bg"); });
+        targetH1Btn.addEventListener("click", function () { setActiveTarget("h1"); });
+        targetH2Btn.addEventListener("click", function () { setActiveTarget("h2"); });
+
+        // Update preview when standard checkboxes change
+        const checkboxes = [
+            centreCheckbox,
+            heightCheckbox,
+            subheadingCheckbox,
+            h1SerifCheckbox,
+            h2SerifCheckbox
+        ];
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", updateHero);
+        });
+
+        // Special listener for Dark appearance preset to reset colours
+        darkCheckbox.addEventListener("change", handleDarkAppearanceToggle);
+
+        // Update letter spacing immediately while dragging sliders
+        h1SpacingRange.addEventListener("input", function () {
+            h1SpacingVal.textContent = h1SpacingRange.value + "em";
+            updateHero();
+        });
+
+        h2SpacingRange.addEventListener("input", function () {
+            h2SpacingVal.textContent = h2SpacingRange.value + "em";
+            updateHero();
+        });
+
+        // Keep editing plain text and the manual HTML current.
+        const editableHeadings = [heroHeading, heroSubheading];
+
+        editableHeadings.forEach(function (heading) {
+            heading.addEventListener("input", handleHeadingInput);
+            heading.addEventListener("paste", handlePlainTextPaste);
+            heading.addEventListener(
+                "beforeinput",
+                handleHeadingBeforeInput
+            );
+            heading.addEventListener("drop", preventFormattedDrop);
+        });
+
+        copyButton.addEventListener("click", copyHtml);
+
+        // Build Palette and Apply Initial State
+        buildPaletteUI();
+        updateHero();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Short, unique description of web page. Often used as the snippet shown in search results. About 120 characters is ideal.">
+
+    <title>Hero Block Generator</title>
+
+    <link rel="preload" as="image" href="output/assets/videos/hero-poster.jpg">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Shared styles for the preview and exported page. -->
+    <style id="hero-styles" type="text/tailwindcss">
+        .hero {
+            @apply relative flex items-center w-full px-6 py-16 md:px-12 md:py-24 overflow-hidden;
+        }
+
+        .hero-poster {
+            @apply absolute inset-0 w-full h-full object-cover object-center z-0;
+        }
+
+        .hero-video {
+            @apply absolute inset-0 w-full h-full object-cover object-center z-0;
+        }
+
+        .hero-overlay {
+            @apply absolute inset-0 pointer-events-none z-10;
+        }
+
+        .hero-content {
+            @apply relative z-20 w-full max-w-6xl mx-auto;
+            min-width: 0;
+        }
+
+        .hero h1 {
+            @apply w-full text-4xl md:text-7xl font-bold leading-tight tracking-tight drop-shadow-lg/30;
+            overflow-wrap: break-word;
+            word-break: normal;
+        }
+
+        .hero h2 {
+            @apply w-full mt-6 text-xl md:text-3xl font-normal leading-relaxed drop-shadow-lg/30;
+            overflow-wrap: break-word;
+            word-break: normal;
+        }
+
+        .hero-centre {
+            @apply text-center;
+        }
+
+        .hero-centre h1,
+        .hero-centre h2 {
+            @apply mx-auto;
+        }
+
+        .hero-min-height {
+            @apply min-h-[480px] md:min-h-[85vh];
+        }
+
+        .hero-h1-serif h1 {
+            @apply font-serif;
+        }
+
+        .hero-h2-serif h2 {
+            @apply font-serif;
+        }
+
+        .hero [hidden] {
+            display: none !important;
+        }
+    </style>
+
+    <!-- Dynamic Tailwind color override rules, overlay styles, and letter spacing rules -->
+    <style id="dynamic-hero-styles" type="text/tailwindcss">
+        #hero-overlay {
+            background-color: var(--color-black);
+            background-image: none;
+            opacity: 0.4;
+        }
+        #hero-heading {
+            color: var(--color-white);
+            letter-spacing: -0.05em;
+        }
+        #hero-subheading {
+            color: var(--color-white);
+            letter-spacing: -0.025em;
+        }
+    </style>
+
+    <!-- Editor styles are excluded from the exported page. -->
+    <style type="text/tailwindcss">
+        .app-body {
+            @apply m-0 bg-white text-slate-900 font-sans;
+        }
+
+        .app-main {
+            @apply max-w-7xl mx-auto px-4 pt-8 pb-32 md:px-8;
+        }
+
+        .app-intro {
+            @apply mb-5;
+        }
+
+        .app-title {
+            @apply text-2xl font-bold tracking-tight;
+        }
+
+        .app-description {
+            @apply mt-2 text-sm text-slate-600;
+        }
+
+        .control-panel {
+            @apply flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4;
+        }
+
+        .control-row {
+            @apply flex flex-wrap items-center gap-x-6 gap-y-4;
+        }
+
+        .control-label {
+            @apply inline-flex items-center gap-2 text-sm font-medium cursor-pointer;
+        }
+
+        .control-checkbox {
+            @apply w-5 h-5 shrink-0 cursor-pointer;
+            accent-color: #2563eb;
+        }
+
+        .control-select {
+            @apply rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 cursor-pointer transition-colors focus:border-blue-600 focus:outline-none;
+        }
+
+        .target-btn {
+            @apply px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 text-slate-700 transition-all cursor-pointer;
+        }
+
+        .target-btn:hover:not(:disabled) {
+            @apply bg-slate-100 border-slate-400;
+        }
+
+        .target-btn.active {
+            @apply bg-blue-600 text-white border-blue-600 shadow-sm;
+        }
+
+        .target-btn:disabled {
+            @apply opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200;
+        }
+
+        .palette-scroll-container {
+            @apply w-full overflow-x-auto pb-2 border border-slate-200 rounded-lg p-3 bg-slate-50/50;
+        }
+
+        .palette-table {
+            @apply border-collapse min-w-max text-xs;
+        }
+
+        .swatch-btn {
+            @apply w-6 h-6 rounded border border-black/10 transition-transform cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-1;
+        }
+
+        .swatch-btn:hover {
+            @apply scale-110 z-10 relative;
+        }
+
+        .swatch-btn.selected-swatch {
+            @apply ring-2 ring-blue-600 ring-offset-2 scale-110 z-10 relative;
+        }
+
+        .control-checkbox:focus-visible,
+        .control-select:focus-visible,
+        .copy-button:focus-visible,
+        .manual-code:focus-visible,
+        .target-btn:focus-visible,
+        input[type="range"]:focus-visible {
+            outline: 3px solid #2563eb;
+            outline-offset: 4px;
+        }
+
+        .edit-instruction {
+            @apply my-4 text-sm text-slate-600;
+        }
+
+        .preview-frame {
+            @apply rounded-2xl border border-slate-200;
+        }
+
+        .preview-frame .hero {
+            @apply rounded-2xl;
+        }
+
+        .hero [contenteditable] {
+            cursor: text;
+        }
+
+        .hero [contenteditable]:focus {
+            outline: 3px solid #2563eb;
+            outline-offset: 5px;
+            border-radius: 2px;
+        }
+
+        .copy-button {
+            @apply fixed right-4 bottom-4 rounded-xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-800 md:right-6 md:bottom-6;
+        }
+
+        .status-message {
+            @apply mt-4 text-sm text-slate-700;
+        }
+
+        .manual-copy {
+            @apply mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4;
+        }
+
+        .manual-label {
+            @apply block text-sm font-semibold;
+        }
+
+        .manual-help {
+            @apply mt-2 mb-3 text-sm text-slate-600;
+        }
+
+        .manual-code {
+            @apply block w-full min-h-72 resize-y rounded-lg border border-slate-300 bg-white p-3 font-mono text-sm text-slate-900;
+        }
+
+        .manual-copy[hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="app-body">
+    <main class="app-main">
+        <div class="app-intro">
+            <h2 class="app-title">Hero Block Generator</h2>
+
+            <p class="app-description">
+                Edit the headings, choose your settings, then copy the HTML.
+            </p>
+        </div>
+
+        <section class="control-panel" aria-label="Hero settings">
+            <!-- Global Appearance & Layout Settings -->
+            <div class="control-row border-b border-slate-200 pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 w-full md:w-auto">General</span>
+
+                <label class="control-label" for="centre-text">
+                    <input class="control-checkbox" id="centre-text" type="checkbox">
+                    Centre text
+                </label>
+
+                <label class="control-label" for="minimum-height">
+                    <input class="control-checkbox" id="minimum-height" type="checkbox" checked>
+                    Minimum height
+                </label>
+
+                <label class="control-label" for="show-subheading">
+                    <input class="control-checkbox" id="show-subheading" type="checkbox" checked>
+                    Show subheading
+                </label>
+
+                <label class="control-label" for="gradient-overlay">
+                    <input class="control-checkbox" id="gradient-overlay" type="checkbox">
+                    Gradient overlay
+                </label>
+
+                <div class="flex items-center gap-3">
+                    <label class="control-label text-sm font-medium" for="overlay-opacity">
+                        Overlay opacity:
+                    </label>
+                    <input id="overlay-opacity" type="range" min="0.1" max="0.9" step="0.05" value="0.4" class="cursor-pointer accent-blue-600">
+                    <span id="overlay-opacity-val" class="text-xs font-mono font-semibold text-slate-700 min-w-[4ch]">0.4</span>
+                </div>
+            </div>
+
+            <!-- H1 Text Effect Group -->
+            <div class="control-row border-b border-slate-200 pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 w-full md:w-auto">H1
+                    Effects</span>
+                <label class="control-label" for="h1-serif">
+                    <input class="control-checkbox" id="h1-serif" type="checkbox">
+                    Serif font
+                </label>
+                <div class="flex items-center gap-3">
+                    <label class="control-label text-sm font-medium" for="h1-letter-spacing">
+                        Letter spacing:
+                    </label>
+                    <input id="h1-letter-spacing" type="range" min="-0.05" max="0.10" step="0.005" value="-0.05" class="cursor-pointer accent-blue-600">
+                    <span id="h1-letter-spacing-val" class="text-xs font-mono font-semibold text-slate-700 min-w-[5ch]">-0.05em</span>
+                </div>
+            </div>
+
+            <!-- H2 Text Effect Group -->
+            <div id="h2-controls-group" class="control-row border-b border-slate-200 pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 w-full md:w-auto">H2
+                    Effects</span>
+                <label class="control-label" for="h2-serif">
+                    <input class="control-checkbox" id="h2-serif" type="checkbox">
+                    Serif font
+                </label>
+                <div class="flex items-center gap-3">
+                    <label class="control-label text-sm font-medium" for="h2-letter-spacing">
+                        Letter spacing:
+                    </label>
+                    <input id="h2-letter-spacing" type="range" min="-0.05" max="0.10" step="0.005" value="-0.025" class="cursor-pointer accent-blue-600">
+                    <span id="h2-letter-spacing-val" class="text-xs font-mono font-semibold text-slate-700 min-w-[5ch]">-0.025em</span>
+                </div>
+            </div>
+
+            <!-- Colour Palette Section -->
+            <div class="flex flex-col gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Colour Target:</span>
+                        <div class="flex items-center gap-1.5" role="tablist" aria-label="Colour target element selection">
+                            <!-- Solid Overlay Target Button -->
+                            <button type="button" id="target-overlay" class="target-btn active" role="tab" aria-selected="true">
+                                Overlay colour (<span id="target-overlay-val" class="font-mono">black</span>)
+                            </button>
+
+                            <!-- Gradient Mode Target Buttons -->
+                            <button type="button" id="target-start" class="target-btn" role="tab" aria-selected="false" hidden>
+                                Start colour (<span id="target-start-val" class="font-mono">black</span>)
+                            </button>
+                            <button type="button" id="target-end" class="target-btn" role="tab" aria-selected="false" hidden>
+                                End colour (<span id="target-end-val" class="font-mono">blue-500</span>)
+                            </button>
+
+                            <!-- Heading Target Buttons -->
+                            <button type="button" id="target-h1" class="target-btn" role="tab" aria-selected="false">
+                                H1 (<span id="target-h1-val" class="font-mono">white</span>)
+                            </button>
+                            <button type="button" id="target-h2" class="target-btn" role="tab" aria-selected="false">
+                                H2 (<span id="target-h2-val" class="font-mono">white</span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Direction Dropdown for Gradient Mode -->
+                    <div id="gradient-direction-wrapper" class="flex items-center gap-2" hidden>
+                        <label for="gradient-direction" class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Direction:
+                        </label>
+                        <select id="gradient-direction" class="control-select">
+                            <option value="to right" selected>Left to right</option>
+                            <option value="to left">Right to left</option>
+                            <option value="to bottom">Top to bottom</option>
+                            <option value="to top">Bottom to top</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Palette Grid Container (Horizontally Scrollable on small screens) -->
+                <div class="palette-scroll-container">
+                    <table class="palette-table" aria-label="Tailwind CSS Colour Palette">
+                        <thead>
+                            <tr class="text-left text-slate-400 font-mono text-[10px]">
+                                <th class="pr-3 pb-1 font-semibold">Family</th>
+                                <th class="px-1 pb-1 text-center font-semibold">50</th>
+                                <th class="px-1 pb-1 text-center font-semibold">100</th>
+                                <th class="px-1 pb-1 text-center font-semibold">200</th>
+                                <th class="px-1 pb-1 text-center font-semibold">300</th>
+                                <th class="px-1 pb-1 text-center font-semibold">400</th>
+                                <th class="px-1 pb-1 text-center font-semibold">500</th>
+                                <th class="px-1 pb-1 text-center font-semibold">600</th>
+                                <th class="px-1 pb-1 text-center font-semibold">700</th>
+                                <th class="px-1 pb-1 text-center font-semibold">800</th>
+                                <th class="px-1 pb-1 text-center font-semibold">900</th>
+                                <th class="px-1 pb-1 text-center font-semibold">950</th>
+                            </tr>
+                        </thead>
+                        <tbody id="palette-tbody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <p id="edit-instruction" class="edit-instruction">
+            Click a heading to edit the text.
+        </p>
+
+        <div class="preview-frame">
+            <header id="hero-preview" class="hero hero-min-height" role="region" aria-label="Hero section preview">
+                <img src="output/assets/videos/hero-poster.jpg" alt="" class="hero-poster" aria-hidden="true">
+                <video id="hero-video" class="hero-video" muted loop playsinline preload="metadata" poster="output/assets/videos/hero-poster.jpg" aria-hidden="true" tabindex="-1">
+                    <source src="output/assets/videos/hero-video.mp4" type="video/mp4">
+                </video>
+                <div id="hero-overlay" class="hero-overlay" aria-hidden="true"></div>
+                <div class="hero-content">
+                    <h1 id="hero-heading" contenteditable="plaintext-only" tabindex="0" aria-label="Main hero heading" aria-describedby="edit-instruction" spellcheck="true">Lorem ipsum dolor sit amet</h1>
+
+                    <h2 id="hero-subheading" contenteditable="plaintext-only" tabindex="0" aria-label="Hero subheading" aria-describedby="edit-instruction" spellcheck="true">Consectetur adipiscing elit. Integer vitae libero ac risus egestas placerat.
+                    </h2>
+                </div>
+            </header>
+        </div>
+
+        <p id="copy-status" class="status-message" role="status" aria-live="polite" aria-atomic="true"></p>
+
+        <section id="manual-copy" class="manual-copy" aria-label="Manual HTML copying" hidden>
+            <label class="manual-label" for="manual-code">
+                Generated HTML — copy manually
+            </label>
+
+            <p id="manual-help" class="manual-help">
+                Automatic copying is unavailable. Select the code below and
+                press Ctrl+C on Windows or Command+C on Mac. This code updates
+                whenever you edit the hero.
+            </p>
+
+            <textarea id="manual-code" class="manual-code" aria-describedby="manual-help" readonly spellcheck="false"></textarea>
+        </section>
+
+        <button id="copy-html" class="copy-button" type="button">
+            Copy HTML
+        </button>
+    </main>
+
+    <script>
+        // Constants for Export Paths
+        const exportedVideoPath = "assets/videos/hero-video.mp4";
+        const exportedPosterPath = "assets/videos/hero-poster.jpg";
+        const appVideoPath = "output/assets/videos/hero-video.mp4";
+        const appPosterPath = "output/assets/videos/hero-poster.jpg";
+
+        // Find the page elements.
+        const heroPreview = document.getElementById("hero-preview");
+        const heroVideo = document.getElementById("hero-video");
+        const heroOverlay = document.getElementById("hero-overlay");
+        const heroHeading = document.getElementById("hero-heading");
+        const heroSubheading = document.getElementById("hero-subheading");
+        const heroStyles = document.getElementById("hero-styles");
+        const dynamicHeroStyles = document.getElementById("dynamic-hero-styles");
+
+        const centreCheckbox = document.getElementById("centre-text");
+        const heightCheckbox = document.getElementById("minimum-height");
+        const subheadingCheckbox = document.getElementById("show-subheading");
+        const gradientCheckbox = document.getElementById("gradient-overlay");
+        const opacityRange = document.getElementById("overlay-opacity");
+        const opacityVal = document.getElementById("overlay-opacity-val");
+
+        const h1SerifCheckbox = document.getElementById("h1-serif");
+        const h1SpacingRange = document.getElementById("h1-letter-spacing");
+        const h1SpacingVal = document.getElementById("h1-letter-spacing-val");
+
+        const h2SerifCheckbox = document.getElementById("h2-serif");
+        const h2SpacingRange = document.getElementById("h2-letter-spacing");
+        const h2SpacingVal = document.getElementById("h2-letter-spacing-val");
+        const h2ControlsGroup = document.getElementById("h2-controls-group");
+
+        const targetOverlayBtn = document.getElementById("target-overlay");
+        const targetStartBtn = document.getElementById("target-start");
+        const targetEndBtn = document.getElementById("target-end");
+        const targetH1Btn = document.getElementById("target-h1");
+        const targetH2Btn = document.getElementById("target-h2");
+
+        const targetOverlayVal = document.getElementById("target-overlay-val");
+        const targetStartVal = document.getElementById("target-start-val");
+        const targetEndVal = document.getElementById("target-end-val");
+        const targetH1Val = document.getElementById("target-h1-val");
+        const targetH2Val = document.getElementById("target-h2-val");
+
+        const gradientDirectionWrapper = document.getElementById("gradient-direction-wrapper");
+        const gradientDirectionSelect = document.getElementById("gradient-direction");
+
+        const paletteTbody = document.getElementById("palette-tbody");
+
+        const copyButton = document.getElementById("copy-html");
+        const copyStatus = document.getElementById("copy-status");
+        const manualCopy = document.getElementById("manual-copy");
+        const manualCode = document.getElementById("manual-code");
+
+        // Tailwind palette color definitions
+        const colorShades = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"];
+        const colorFamilies = [
+            "slate", "gray", "zinc", "neutral", "stone",
+            "red", "orange", "amber", "yellow", "lime",
+            "green", "emerald", "teal", "cyan", "sky",
+            "blue", "indigo", "violet", "purple", "fuchsia",
+            "pink", "rose"
+        ];
+
+        let gradientEverEnabled = false;
+
+        // Store settings including active target, selected colours, overlay opacity, and gradient configuration.
+        const settings = {
+            centreText: false,
+            minimumHeight: true,
+            showSubheading: true,
+            gradientOverlay: false,
+            overlayOpacity: 0.4,
+            h1Serif: false,
+            h1LetterSpacing: -0.05,
+            h2Serif: false,
+            h2LetterSpacing: -0.025,
+            activeTarget: "overlay", // "overlay", "start", "end", "h1", or "h2"
+            overlayColor: "black",
+            startColor: "black",
+            endColor: "blue-500",
+            gradientDirection: "to right",
+            h1Color: "white",
+            h2Color: "white"
+        };
+
+        function readSettings() {
+            settings.centreText = centreCheckbox.checked;
+            settings.minimumHeight = heightCheckbox.checked;
+            settings.showSubheading = subheadingCheckbox.checked;
+            settings.gradientOverlay = gradientCheckbox.checked;
+            settings.overlayOpacity = parseFloat(opacityRange.value);
+            settings.h1Serif = h1SerifCheckbox.checked;
+            settings.h1LetterSpacing = parseFloat(h1SpacingRange.value);
+            settings.h2Serif = h2SerifCheckbox.checked;
+            settings.h2LetterSpacing = parseFloat(h2SpacingRange.value);
+            settings.gradientDirection = gradientDirectionSelect.value;
+        }
+
+        // Build the colour palette table rows
+        function buildPaletteUI() {
+            paletteTbody.innerHTML = "";
+
+            // Special Row for Black & White
+            const specialTr = document.createElement("tr");
+            specialTr.className = "border-b border-slate-200/80";
+
+            const specialLabelTd = document.createElement("td");
+            specialLabelTd.className = "pr-3 py-1 font-medium text-slate-600 text-xs capitalize";
+            specialLabelTd.textContent = "Monochrome";
+            specialTr.appendChild(specialLabelTd);
+
+            const whiteTd = document.createElement("td");
+            whiteTd.className = "p-1 text-center";
+            whiteTd.appendChild(createSwatchButton("white"));
+            specialTr.appendChild(whiteTd);
+
+            const blackTd = document.createElement("td");
+            blackTd.className = "p-1 text-center";
+            blackTd.appendChild(createSwatchButton("black"));
+            specialTr.appendChild(blackTd);
+
+            // Empty cells for remaining columns in monochrome row
+            for (let i = 2; i < 11; i++) {
+                const emptyTd = document.createElement("td");
+                emptyTd.className = "p-1";
+                specialTr.appendChild(emptyTd);
+            }
+            paletteTbody.appendChild(specialTr);
+
+            // Standard Tailwind Colour Family Rows
+            colorFamilies.forEach(function (family) {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-100/50 transition-colors";
+
+                const labelTd = document.createElement("td");
+                labelTd.className = "pr-3 py-1 font-medium text-slate-600 text-xs capitalize";
+                labelTd.textContent = family;
+                tr.appendChild(labelTd);
+
+                colorShades.forEach(function (shade) {
+                    const td = document.createElement("td");
+                    td.className = "p-1 text-center";
+
+                    const colorName = `${family}-${shade}`;
+                    const button = createSwatchButton(colorName);
+
+                    td.appendChild(button);
+                    tr.appendChild(td);
+                });
+
+                paletteTbody.appendChild(tr);
+            });
+        }
+
+        const tailwindColorMap = {
+            "white": "#ffffff", "black": "#000000",
+            "slate-50": "#f8fafc", "slate-100": "#f1f5f9", "slate-200": "#e2e8f0", "slate-300": "#cbd5e1", "slate-400": "#94a3b8", "slate-500": "#64748b", "slate-600": "#475569", "slate-700": "#334155", "slate-800": "#1e293b", "slate-900": "#0f172a", "slate-950": "#020617",
+            "gray-50": "#f9fafb", "gray-100": "#f3f4f6", "gray-200": "#e5e7eb", "gray-300": "#d1d5db", "gray-400": "#9ca3af", "gray-500": "#6b7280", "gray-600": "#4b5563", "gray-700": "#374151", "gray-800": "#1f2937", "gray-900": "#111827", "gray-950": "#030712",
+            "zinc-50": "#fafafa", "zinc-100": "#f4f4f5", "zinc-200": "#e4e4e7", "zinc-300": "#d4d4d8", "zinc-400": "#a1a1aa", "zinc-500": "#71717a", "zinc-600": "#52525b", "zinc-700": "#3f3f46", "zinc-800": "#27272a", "zinc-900": "#18181b", "zinc-950": "#09090b",
+            "neutral-50": "#fafafa", "neutral-100": "#f5f5f5", "neutral-200": "#e5e5e5", "neutral-300": "#d4d4d4", "neutral-400": "#a3a3a3", "neutral-500": "#737373", "neutral-600": "#525252", "neutral-700": "#404040", "neutral-800": "#262626", "neutral-900": "#171717", "neutral-950": "#0a0a0a",
+            "stone-50": "#fafaf9", "stone-100": "#f5f5f4", "stone-200": "#e7e5e4", "stone-300": "#d6d3d1", "stone-400": "#a8a29e", "stone-500": "#78716c", "stone-600": "#57534e", "stone-700": "#44403c", "stone-800": "#292524", "stone-900": "#1c1917", "stone-950": "#0c0a09",
+            "red-50": "#fef2f2", "red-100": "#fee2e2", "red-200": "#fecaca", "red-300": "#fca5a5", "red-400": "#f87171", "red-500": "#ef4444", "red-600": "#dc2626", "red-700": "#b91c1c", "red-800": "#991b1b", "red-900": "#7f1d1d", "red-950": "#450a0a",
+            "orange-50": "#fff7ed", "orange-100": "#ffedd5", "orange-200": "#fed7aa", "orange-300": "#fdba74", "orange-400": "#fb923c", "orange-500": "#f97316", "orange-600": "#ea580c", "orange-700": "#c2410c", "orange-800": "#9a3412", "orange-900": "#7c2d12", "orange-950": "#431407",
+            "amber-50": "#fffbeb", "amber-100": "#fef3c7", "amber-200": "#fde68a", "amber-300": "#fcd34d", "amber-400": "#fbbf24", "amber-500": "#f59e0b", "amber-600": "#d97706", "amber-700": "#b45309", "amber-800": "#92400e", "amber-900": "#78350f", "amber-950": "#451a03",
+            "yellow-50": "#fefce8", "yellow-100": "#fef9c3", "yellow-200": "#fef08a", "yellow-300": "#fde047", "yellow-400": "#facc15", "yellow-500": "#eab308", "yellow-600": "#ca8a04", "yellow-700": "#a16207", "yellow-800": "#854d0e", "yellow-900": "#713f12", "yellow-950": "#422006",
+            "lime-50": "#f7fee7", "lime-100": "#ecfccb", "lime-200": "#d9f99d", "lime-300": "#bef264", "lime-400": "#a3e635", "lime-500": "#84cc16", "lime-600": "#65a30d", "lime-700": "#4d7c0f", "lime-800": "#3f6212", "lime-900": "#365314", "lime-950": "#1a2e05",
+            "green-50": "#f0fdf4", "green-100": "#dcfce7", "green-200": "#bbf7d0", "green-300": "#86efac", "green-400": "#4ade80", "green-500": "#22c55e", "green-600": "#16a34a", "green-700": "#15803d", "green-800": "#166534", "green-900": "#14532d", "green-950": "#052e16",
+            "emerald-50": "#ecfdf5", "emerald-100": "#d1fae5", "emerald-200": "#a7f3d0", "emerald-300": "#6ee7b7", "emerald-400": "#34d399", "emerald-500": "#10b981", "emerald-600": "#059669", "emerald-700": "#047857", "emerald-800": "#065f46", "emerald-900": "#064e3b", "emerald-950": "#022c22",
+            "teal-50": "#f0fdfa", "teal-100": "#ccfbf1", "teal-200": "#99f6e4", "teal-300": "#5eead4", "teal-400": "#2dd4bf", "teal-500": "#14b8a6", "teal-600": "#0d9488", "teal-700": "#0f766e", "teal-800": "#115e59", "teal-900": "#134e4a", "teal-950": "#042f2e",
+            "cyan-50": "#ecfeff", "cyan-100": "#cffafe", "cyan-200": "#a5f3fc", "cyan-300": "#67e8f9", "cyan-400": "#22d3ee", "cyan-500": "#06b6d4", "cyan-600": "#0891b2", "cyan-700": "#0e7490", "cyan-800": "#155e75", "cyan-900": "#164e63", "cyan-950": "#083344",
+            "sky-50": "#f0f9ff", "sky-100": "#e0f2fe", "sky-200": "#bae6fd", "sky-300": "#7dd3fc", "sky-400": "#38bdf8", "sky-500": "#0ea5e9", "sky-600": "#0284c7", "sky-700": "#0369a1", "sky-800": "#075985", "sky-900": "#0c4a6e", "sky-950": "#082f49",
+            "blue-50": "#eff6ff", "blue-100": "#dbeafe", "blue-200": "#bfdbfe", "blue-300": "#93c5fd", "blue-400": "#60a5fa", "blue-500": "#3b82f6", "blue-600": "#2563eb", "blue-700": "#1d4ed8", "blue-800": "#1e40af", "blue-900": "#1e3a8a", "blue-950": "#172554",
+            "indigo-50": "#eef2ff", "indigo-100": "#e0e7ff", "indigo-200": "#c7d2fe", "indigo-300": "#a5b4fc", "indigo-400": "#818cf8", "indigo-500": "#6366f1", "indigo-600": "#4f46e5", "indigo-700": "#4338ca", "indigo-800": "#3730a3", "indigo-900": "#312e81", "indigo-950": "#1e1b4b",
+            "violet-50": "#f5f3ff", "violet-100": "#ede9fe", "violet-200": "#ddd6fe", "violet-300": "#c4b5fd", "violet-400": "#a78bfa", "violet-500": "#8b5cf6", "violet-600": "#7c3aed", "violet-700": "#6d28d9", "violet-800": "#5b21b6", "violet-900": "#4c1d95", "violet-950": "#2e1065",
+            "purple-50": "#faf5ff", "purple-100": "#f3e8ff", "purple-200": "#e9d5ff", "purple-300": "#d8b4fe", "purple-400": "#c084fc", "purple-500": "#a855f7", "purple-600": "#9333ea", "purple-700": "#7e22ce", "purple-800": "#6b21a8", "purple-900": "#581c87", "purple-950": "#3b0764",
+            "fuchsia-50": "#fdf4ff", "fuchsia-100": "#fae8ff", "fuchsia-200": "#f5d0fe", "fuchsia-300": "#f0abfc", "fuchsia-400": "#e879f9", "fuchsia-500": "#d946ef", "fuchsia-600": "#c026d3", "fuchsia-700": "#a21caf", "fuchsia-800": "#86198f", "fuchsia-900": "#701a75", "fuchsia-950": "#4a044e",
+            "pink-50": "#fdf2f8", "pink-100": "#fce7f3", "pink-200": "#fbcfe8", "pink-300": "#f472b6", "pink-400": "#ec4899", "pink-500": "#db2777", "pink-600": "#be185d", "pink-700": "#9d174d", "pink-800": "#831843", "pink-900": "#701a35", "pink-950": "#500724",
+            "rose-50": "#fff1f2", "rose-100": "#ffe4e6", "rose-200": "#fecdd3", "rose-300": "#fda4af", "rose-400": "#fb7185", "rose-500": "#f43f5e", "rose-600": "#e11d48", "rose-700": "#be123c", "rose-800": "#9f1239", "rose-900": "#881337", "rose-950": "#4c0519"
+        };
+
+        function createSwatchButton(colorName) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "swatch-btn";
+            button.dataset.color = colorName;
+            button.setAttribute("aria-label", `Select colour ${colorName}`);
+            button.title = colorName;
+
+            // Define a cor de fundo usando o mapeamento hexadecimal direto
+            button.style.backgroundColor = tailwindColorMap[colorName] || "#ccc";
+
+            button.addEventListener("click", function () {
+                selectColorForActiveTarget(colorName);
+            });
+
+            return button;
+        }
+
+        function selectColorForActiveTarget(colorName) {
+            if (settings.activeTarget === "overlay") {
+                settings.overlayColor = colorName;
+            } else if (settings.activeTarget === "start") {
+                settings.startColor = colorName;
+            } else if (settings.activeTarget === "end") {
+                settings.endColor = colorName;
+            } else if (settings.activeTarget === "h1") {
+                settings.h1Color = colorName;
+            } else if (settings.activeTarget === "h2") {
+                settings.h2Color = colorName;
+            }
+            updateHero();
+        }
+
+        function setActiveTarget(target) {
+            // Validate target against active state/mode fallbacks
+            if (target === "h2" && !settings.showSubheading) {
+                target = settings.gradientOverlay ? "start" : "overlay";
+            }
+            if (!settings.gradientOverlay && (target === "start" || target === "end")) {
+                target = "overlay";
+            }
+            if (settings.gradientOverlay && target === "overlay") {
+                target = "start";
+            }
+
+            settings.activeTarget = target;
+
+            const targetBtns = [targetOverlayBtn, targetStartBtn, targetEndBtn, targetH1Btn, targetH2Btn];
+            targetBtns.forEach(function (btn) {
+                btn.classList.remove("active");
+                btn.setAttribute("aria-selected", "false");
+            });
+
+            if (target === "overlay") {
+                targetOverlayBtn.classList.add("active");
+                targetOverlayBtn.setAttribute("aria-selected", "true");
+            } else if (target === "start") {
+                targetStartBtn.classList.add("active");
+                targetStartBtn.setAttribute("aria-selected", "true");
+            } else if (target === "end") {
+                targetEndBtn.classList.add("active");
+                targetEndBtn.setAttribute("aria-selected", "true");
+            } else if (target === "h1") {
+                targetH1Btn.classList.add("active");
+                targetH1Btn.setAttribute("aria-selected", "true");
+            } else if (target === "h2") {
+                targetH2Btn.classList.add("active");
+                targetH2Btn.setAttribute("aria-selected", "true");
+            }
+
+            updateSwatchHighlights();
+        }
+
+        function updateSwatchHighlights() {
+            let activeColor = settings.overlayColor;
+            if (settings.activeTarget === "start") activeColor = settings.startColor;
+            if (settings.activeTarget === "end") activeColor = settings.endColor;
+            if (settings.activeTarget === "h1") activeColor = settings.h1Color;
+            if (settings.activeTarget === "h2") activeColor = settings.h2Color;
+
+            const swatches = paletteTbody.querySelectorAll(".swatch-btn");
+            swatches.forEach(function (swatch) {
+                if (swatch.dataset.color === activeColor) {
+                    swatch.classList.add("selected-swatch");
+                } else {
+                    swatch.classList.remove("selected-swatch");
+                }
+            });
+        }
+
+        // Use the same class choices for preview and export.
+        function getHeroClasses() {
+            const classes = ["hero"];
+
+            if (settings.centreText) {
+                classes.push("hero-centre");
+            }
+
+            if (settings.minimumHeight) {
+                classes.push("hero-min-height");
+            }
+
+            if (settings.h1Serif) {
+                classes.push("hero-h1-serif");
+            }
+
+            if (settings.h2Serif) {
+                classes.push("hero-h2-serif");
+            }
+
+            return classes;
+        }
+
+        function handleGradientToggleChange() {
+            const isGradient = gradientCheckbox.checked;
+
+            if (isGradient && !gradientEverEnabled) {
+                settings.startColor = settings.overlayColor;
+                settings.endColor = "blue-500";
+                gradientEverEnabled = true;
+            }
+
+            if (isGradient) {
+                targetOverlayBtn.hidden = true;
+                targetStartBtn.hidden = false;
+                targetEndBtn.hidden = false;
+                gradientDirectionWrapper.hidden = false;
+
+                if (settings.activeTarget === "overlay") {
+                    setActiveTarget("start");
+                }
+            } else {
+                targetOverlayBtn.hidden = false;
+                targetStartBtn.hidden = true;
+                targetEndBtn.hidden = true;
+                gradientDirectionWrapper.hidden = true;
+
+                if (settings.activeTarget === "start" || settings.activeTarget === "end") {
+                    setActiveTarget("overlay");
+                }
+            }
+
+            updateHero();
+        }
+
+        function buildDynamicHeroCss() {
+            let overlayStyleRules = "";
+            if (settings.gradientOverlay) {
+                overlayStyleRules = `
+                    background-color: transparent;
+                    background-image: linear-gradient(${settings.gradientDirection}, var(--color-${settings.startColor}), var(--color-${settings.endColor}));
+                    opacity: ${settings.overlayOpacity};
+                `;
+            } else {
+                overlayStyleRules = `
+                    background-color: var(--color-${settings.overlayColor});
+                    background-image: none;
+                    opacity: ${settings.overlayOpacity};
+                `;
+            }
+
+            return `
+                #hero-overlay {
+                    ${overlayStyleRules}
+                }
+                #hero-heading {
+                    color: var(--color-${settings.h1Color});
+                    letter-spacing: ${settings.h1LetterSpacing}em;
+                }
+                #hero-subheading {
+                    color: var(--color-${settings.h2Color});
+                    letter-spacing: ${settings.h2LetterSpacing}em;
+                }
+            `;
+        }
+
+        // Named playback-initialisation function
+        const mediaQueryReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+        function initVideoPlayback(videoElement) {
+            if (!videoElement) return;
+
+            const prefersReducedMotion = mediaQueryReducedMotion.matches;
+            videoElement.muted = true;
+
+            if (!prefersReducedMotion) {
+                videoElement.play().then(() => {
+                    videoElement.style.opacity = "1";
+                }).catch(() => {
+                    videoElement.style.opacity = "0";
+                });
+            } else {
+                videoElement.pause();
+                videoElement.style.opacity = "0";
+            }
+        }
+
+        // Listen for changes to the reduced-motion preference
+        mediaQueryReducedMotion.addEventListener("change", () => {
+            initVideoPlayback(heroVideo);
+        });
+
+        function updateHero() {
+            readSettings();
+
+            const activeClasses = getHeroClasses();
+
+            const optionalClasses = [
+                "hero-centre",
+                "hero-min-height",
+                "hero-h1-serif",
+                "hero-h2-serif"
+            ];
+
+            optionalClasses.forEach(function (className) {
+                heroPreview.classList.toggle(
+                    className,
+                    activeClasses.includes(className)
+                );
+            });
+
+            // Update Target Button Labels
+            targetOverlayVal.textContent = settings.overlayColor;
+            targetStartVal.textContent = settings.startColor;
+            targetEndVal.textContent = settings.endColor;
+            targetH1Val.textContent = settings.h1Color;
+            targetH2Val.textContent = settings.h2Color;
+
+            // Handle H2 state changes and target fallbacks
+            if (!settings.showSubheading) {
+                targetH2Btn.disabled = true;
+                if (settings.activeTarget === "h2") {
+                    setActiveTarget(settings.gradientOverlay ? "start" : "overlay");
+                }
+            } else {
+                targetH2Btn.disabled = false;
+            }
+
+            setActiveTarget(settings.activeTarget);
+
+            // Update dynamic styles
+            dynamicHeroStyles.textContent = buildDynamicHeroCss();
+
+            // Disable/enable H2 effect controls when subheading is hidden
+            h2SerifCheckbox.disabled = !settings.showSubheading;
+            h2SpacingRange.disabled = !settings.showSubheading;
+
+            if (!settings.showSubheading) {
+                h2ControlsGroup.classList.add("opacity-50", "cursor-not-allowed");
+            } else {
+                h2ControlsGroup.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+
+            heroSubheading.hidden = !settings.showSubheading;
+
+            updateSwatchHighlights();
+            clearStatus();
+            updateManualCode();
+        }
+
+        // Keep special characters as text in the exported document.
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function generateHtml() {
+            readSettings();
+
+            const headingText = escapeHtml(heroHeading.textContent);
+            const subheadingText = escapeHtml(heroSubheading.textContent);
+            const classNames = getHeroClasses().join(" ");
+            const sharedCss = heroStyles.textContent.trim();
+            const dynamicCss = buildDynamicHeroCss().trim();
+
+            let subheadingHtml = "";
+
+            if (settings.showSubheading) {
+                subheadingHtml = `
+            <h2 id="hero-subheading">${subheadingText}</h2>`;
+            }
+
+            // Exported script containing the playback logic
+            const exportedScript = `
+        const mediaQueryReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+        function initVideoPlayback(videoElement) {
+            if (!videoElement) return;
+
+            const prefersReducedMotion = mediaQueryReducedMotion.matches;
+            videoElement.muted = true;
+
+            if (!prefersReducedMotion) {
+                videoElement.play().then(() => {
+                    videoElement.style.opacity = "1";
+                }).catch(() => {
+                    videoElement.style.opacity = "0";
+                });
+            } else {
+                videoElement.pause();
+                videoElement.style.opacity = "0";
+            }
+        }
+
+        mediaQueryReducedMotion.addEventListener("change", () => {
+            const heroVideo = document.getElementById("hero-video");
+            initVideoPlayback(heroVideo);
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const heroVideo = document.getElementById("hero-video");
+            initVideoPlayback(heroVideo);
+        });
+            `.trim();
+
+            // Escape the closing script tag inside this string.
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Short, unique description of web page. Often used as the snippet shown in search results. About 120 characters is ideal.">
+
+    <title>Hero Page</title>
+
+    <link rel="preload" as="image" href="${exportedPosterPath}">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>
+
+    <style type="text/tailwindcss">
+${sharedCss}
+    </style>
+    <style type="text/tailwindcss">
+${dynamicCss}
+    </style>
+</head>
+
+<body>
+    <header id="hero-preview" class="${classNames}">
+        <img src="${exportedPosterPath}" alt="" class="hero-poster" aria-hidden="true">
+        <video id="hero-video" class="hero-video" muted loop playsinline preload="metadata" poster="${exportedPosterPath}" aria-hidden="true" tabindex="-1" style="opacity: 0;">
+            <source src="${exportedVideoPath}" type="video/mp4">
+        </video>
+        <div id="hero-overlay" class="hero-overlay" aria-hidden="true"></div>
+        <div class="hero-content">
+            <h1 id="hero-heading">${headingText}</h1>${subheadingHtml}
+        </div>
+    </header>
+
+    <script>
+${exportedScript}
+    <\/script>
+</body>
+</html>`;
+        }
+
+        function clearStatus() {
+            copyStatus.textContent = "";
+        }
+
+        function updateManualCode() {
+            if (!manualCopy.hidden) {
+                manualCode.value = generateHtml();
+            }
+        }
+
+        function handleHeadingInput() {
+            clearStatus();
+            updateManualCode();
+        }
+
+        // Insert plain text without creating HTML elements.
+        function insertPlainText(heading, text) {
+            const selection = window.getSelection();
+
+            if (!selection || selection.rangeCount === 0) {
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+
+            if (
+                !heading.contains(range.startContainer) ||
+                !heading.contains(range.endContainer)
+            ) {
+                return;
+            }
+
+            range.deleteContents();
+
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+
+            range.setStartAfter(textNode);
+            range.collapse(true);
+
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            handleHeadingInput();
+        }
+
+        function handlePlainTextPaste(event) {
+            event.preventDefault();
+
+            if (!event.clipboardData) {
+                return;
+            }
+
+            const pastedText = event.clipboardData.getData("text/plain");
+
+            insertPlainText(event.currentTarget, pastedText);
+        }
+
+        // Prevent Enter from creating extra HTML elements.
+        function handleHeadingBeforeInput(event) {
+            if (
+                event.inputType === "insertParagraph" ||
+                event.inputType === "insertLineBreak"
+            ) {
+                event.preventDefault();
+                insertPlainText(event.currentTarget, "\n");
+            }
+        }
+
+        function preventFormattedDrop(event) {
+            event.preventDefault();
+        }
+
+        function showManualCopy(html) {
+            manualCopy.hidden = false;
+            manualCode.value = html;
+
+            copyStatus.textContent =
+                "Automatic copying is unavailable. Use the generated HTML below.";
+
+            manualCode.focus();
+            manualCode.select();
+        }
+
+        async function copyHtml() {
+            clearStatus();
+
+            const html = generateHtml();
+
+            try {
+                if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                    throw new Error("Clipboard API is unavailable.");
+                }
+
+                await navigator.clipboard.writeText(html);
+
+                copyStatus.textContent =
+                    "HTML copied—paste it into VS Code.";
+            } catch (error) {
+                showManualCopy(generateHtml());
+            }
+        }
+
+        // Initialize target button handlers
+        targetOverlayBtn.addEventListener("click", function () { setActiveTarget("overlay"); });
+        targetStartBtn.addEventListener("click", function () { setActiveTarget("start"); });
+        targetEndBtn.addEventListener("click", function () { setActiveTarget("end"); });
+        targetH1Btn.addEventListener("click", function () { setActiveTarget("h1"); });
+        targetH2Btn.addEventListener("click", function () { setActiveTarget("h2"); });
+
+        // Gradient Mode Checkbox & Direction Listeners
+        gradientCheckbox.addEventListener("change", handleGradientToggleChange);
+        gradientDirectionSelect.addEventListener("change", updateHero);
+
+        // Opacity Slider Listener
+        opacityRange.addEventListener("input", function () {
+            opacityVal.textContent = opacityRange.value;
+            updateHero();
+        });
+
+        // Update preview when standard checkboxes change
+        const checkboxes = [
+            centreCheckbox,
+            heightCheckbox,
+            subheadingCheckbox,
+            h1SerifCheckbox,
+            h2SerifCheckbox
+        ];
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", updateHero);
+        });
+
+        // Update letter spacing immediately while dragging sliders
+        h1SpacingRange.addEventListener("input", function () {
+            h1SpacingVal.textContent = h1SpacingRange.value + "em";
+            updateHero();
+        });
+
+        h2SpacingRange.addEventListener("input", function () {
+            h2SpacingVal.textContent = h2SpacingRange.value + "em";
+            updateHero();
+        });
+
+        // Keep editing plain text and the manual HTML current.
+        const editableHeadings = [heroHeading, heroSubheading];
+
+        editableHeadings.forEach(function (heading) {
+            heading.addEventListener("input", handleHeadingInput);
+            heading.addEventListener("paste", handlePlainTextPaste);
+            heading.addEventListener(
+                "beforeinput",
+                handleHeadingBeforeInput
+            );
+            heading.addEventListener("drop", preventFormattedDrop);
+        });
+
+        copyButton.addEventListener("click", copyHtml);
+
+        // Build Palette and Apply Initial State
+        buildPaletteUI();
+        updateHero();
+
+        // Initialize video playback for generator app preview on load
+        document.addEventListener("DOMContentLoaded", () => {
+            initVideoPlayback(heroVideo);
+        });
+    </script>
+</body>
+
+</html>
